@@ -1,0 +1,12 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: vanity
+spec:
+  template:
+    spec:
+      containers:
+        - image: ko://github.com/n3wscott/vanity
+          env:
+            - name: VANITY_CONFIG
+              value: /var/run/ko/example.yaml # this can also be a url.

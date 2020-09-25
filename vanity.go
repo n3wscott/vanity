@@ -1,47 +1,34 @@
 package main
 
 import (
-	"io/ioutil"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/kelseyhightower/envconfig"
+	"github.com/n3wscott/vanity/pkg/handler"
+	"github.com/n3wscott/vanity/pkg/vanity"
 )
 
 type envConfig struct {
-	Port          int    `envconfig:"PORT" default:"8080"`
-	Downstream    string `envconfig:"DISCOVERY_DOWNSTREAM"` // comma separated list of urls.
-	Services      string `envconfig:"DISCOVERY_SERVICES_FILE"`
-	Subscriptions string `envconfig:"SUBSCRIPTIONS_FILE"`
+	Port         int    `envconfig:"PORT" default:"8080"`
+	VanityConfig string `envconfig:"VANITY_CONFIG" required:"true"`
 }
 
 func main() {
-
-	var configPath string
-	switch len(os.Args) {
-	case 1:
-		configPath = "vanity.yaml"
-	case 2:
-		configPath = os.Args[1]
-	default:
-		log.Fatal("usage: govanityurls [CONFIG]")
+	var env envConfig
+	if err := envconfig.Process("", &env); err != nil {
+		log.Printf("[ERROR] Failed to process env var: %s", err)
+		os.Exit(1)
 	}
-	vanity, err := ioutil.ReadFile(configPath)
+
+	cfg, err := vanity.Parse(env.VanityConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
-	h, err := newHandler(vanity)
-	if err != nil {
-		log.Fatal(err)
-	}
-	http.Handle("/", h)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", env.Port), handler.New(cfg)); err != nil {
 		log.Fatal(err)
 	}
 }
