@@ -1,4 +1,4 @@
-# vanity Go Path Router
+# Vanity, vanity domain mapping for go-imports
 
 This configures an Knative Service which will act as a router for `go` cli, this
 means you don't have to reference all your `go` packages using the full
