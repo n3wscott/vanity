@@ -29,11 +29,15 @@ modify the deployment to be anything you need.
 A simple [example](./kodata/example.yaml) config is provided in the
 [`kodata`](https://github.com/google/ko#including-static-assets) repo.
 
-``yaml host: example.com
+```yaml
+host: example.com
+paths:
+  /foo:
+    repo: https://github.com/example/foo
 
-paths: /foo: repo: https://github.com/example/foo
-
-/bar: repo: https://github.com/example/bar ``
+  /bar:
+    repo: https://github.com/example/bar
+```
 
 Full options are:
 
