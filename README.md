@@ -22,7 +22,7 @@ modify the deployment to be anything you need.
 ### Prerequisites
 
 - [`ko`](https://github.com/google/ko).
-- If targeting Kubernetes, [Knaitve Serving](https://knative.dev/docs/serving)
+- If targeting Kubernetes, [Knative Serving](https://knative.dev/docs/serving)
 
 ### YAML config
 
