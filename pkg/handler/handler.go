@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"github.com/kelseyhightower/envconfig"
 	"github.com/n3wscott/vanity/pkg/vanity"
 	"html/template"
+	"log"
 	"net/http"
+	"path"
 )
 
 func New(config *vanity.Config) http.Handler {
@@ -17,29 +20,23 @@ type handler struct {
 	paths vanity.PathConfigs
 }
 
-var indexTmpl = template.Must(template.New("index").Parse(`<!DOCTYPE html>
-<html>
-	<body>
-		<h1>{{.Host}}</h1>
-		<ul>
-			{{range .Handlers}}<li><a href="https://pkg.go.dev/{{.}}">{{.}}</a></li>{{end}}
-		</ul>
-	</body>
-</html>
-`))
+var (
+	indexTmpl  *template.Template
+	vanityTmpl *template.Template
+)
 
-var vanityTmpl = template.Must(template.New("vanity").Parse(`<!DOCTYPE html>
-<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-		<meta name="go-import" content="{{.Import}} {{.VCS}} {{.Repo}}">
-		<meta name="go-source" content="{{.Import}} {{.Display}}">
-		<meta http-equiv="refresh" content="0; url=https://pkg.go.dev/{{.Import}}/{{.Subpath}}">
-	</head>
-	<body>
-		Nothing to see here; <a href="https://pkg.go.dev/{{.Import}}/{{.Subpath}}">see the package on pkg.go.dev</a>.
-	</body>
-</html>`))
+func init() {
+	var env struct {
+		DataPath string `envconfig:"KO_DATA_PATH" default:"kodata/"  required:"true"`
+	}
+
+	if err := envconfig.Process("", &env); err != nil {
+		log.Fatal("Failed to process env var: ", err)
+	}
+
+	indexTmpl = template.Must(template.ParseFiles(path.Join(env.DataPath, "index.tmpl")))
+	vanityTmpl = template.Must(template.ParseFiles(path.Join(env.DataPath, "redirect.tmpl")))
+}
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h.paths == nil {

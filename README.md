@@ -56,7 +56,7 @@ paths:                                                        # required
 You can test out your config by running,
 
 ```shell script
-VANITY_CONFIG=./kodata/example.yaml go run .
+go run .
 ```
 
 And then you can poke around with `curl http://localhost:8080` or
